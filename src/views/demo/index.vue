@@ -30,7 +30,7 @@ export default {
       '✔ Vue3✨',
       '✔ Vant3✨',
       '✔ 支持 SVG 图标自动注册组件✨',
-      '✔ vw 视口适配',
+      '✔ rem vw 视口适配',
       '✔ Axios 封装',
       '✔ 生产环境 CDN 依赖',
       '✔ 打包资源 gzip 压缩',
@@ -55,8 +55,9 @@ export default {
   padding: 0 12px;
 
   .test{
+      font-size: 30px;
       border: 1px solid red;
-      height: 20px;
+      height: 50px;
       width: 750px;
   }
 
@@ -71,13 +72,13 @@ export default {
     padding-left: 12px;
 
     .svg-icon {
-      font-size: 20px;
+      font-size: 30px;
       margin-right: 8px;
     }
 
     h3 {
       margin: 6px 0;
-      font-size: 18px;
+      font-size: 28px;
     }
 
     > a {
@@ -85,14 +86,14 @@ export default {
       align-items: center;
 
       .link-icon {
-        font-size: 12px;
+        font-size: 22px;
         margin-left: 5px;
       }
     }
   }
 
   &__desc {
-    font-size: 14px;
+    font-size: 24px;
     padding: 2px 10px;
     border-radius: 4px;
     background-color: #eee;
@@ -104,7 +105,10 @@ export default {
   }
 
   .demo-main {
-
+    .van-cell{
+      font-size: 30px;
+      line-height: 1.5;
+    }
   }
 }
 </style>
