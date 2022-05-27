@@ -1,10 +1,10 @@
-import { createWebHashHistory, createRouter } from 'vue-router'
+import { createWebHistory, createRouter } from 'vue-router'
 import routes from './routes'
 import store from '../store'
 import setPageTitle from '@/utils/set-page-title.js'
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   routes
 })
 
