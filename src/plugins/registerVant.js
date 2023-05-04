@@ -5,7 +5,9 @@ import {
   Button,
   Icon,
   Tabbar,
-  TabbarItem
+  TabbarItem,
+  Image as VanImage,
+  Popup
 } from 'vant'
 
 const componentList = [
@@ -15,7 +17,9 @@ const componentList = [
   Button,
   Icon,
   Tabbar,
-  TabbarItem
+  TabbarItem,
+  VanImage,
+  Popup
 ]
 
 export function registerVantComp(app) {

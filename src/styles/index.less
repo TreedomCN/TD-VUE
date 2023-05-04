@@ -7,12 +7,19 @@ body {
   text-rendering: optimizeLegibility;
   font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;
   color: @font-color;
+  background: #000;
 }
 
 html {
   height: 100%;
   box-sizing: border-box;
   font-size: 13.33vw;
+  user-select:none
+}
+@media all and (orientation:landscape) {
+  html {
+    font-size: 13.33vh;
+  }
 }
 
 #app {
@@ -25,4 +32,10 @@ a:hover {
   cursor: pointer;
   color: inherit;
   text-decoration: none;
+}
+.mask-model {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, .7);
 }

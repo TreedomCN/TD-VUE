@@ -12,17 +12,17 @@ function resolve(dir) {
 }
 
 const defaultSettings = require('./src/settings.js')
-const name = defaultSettings.title || 'TD-VUE3'
+const name = defaultSettings.title || '小车用户端'
 
 // 设置不参与构建的库
 const externals = {}
-cdnDependencies.forEach(pkg => { externals[pkg.name] = pkg.library })
+// cdnDependencies.forEach(pkg => { externals[pkg.name] = pkg.library })
 
 // 引入文件的 cdn 链接
-const cdn = {
-  css: cdnDependencies.map(e => e.css).filter(e => e),
-  js: cdnDependencies.map(e => e.js).filter(e => e)
-}
+// const cdn = {
+//   css: cdnDependencies.map(e => e.css).filter(e => e),
+//   js: cdnDependencies.map(e => e.js).filter(e => e)
+// }
 
 module.exports = {
   lintOnSave: true,
@@ -36,6 +36,40 @@ module.exports = {
         alias: {
           '@': resolve('src')
         }
+      },
+      module: {
+        rules: [
+          {
+            include: /node_modules/,
+            test: /\.mjs$/,
+            type: 'javascript/auto'
+          },
+          // 模型
+          {
+            test: /\.(gltf|bin|glb)$/,
+            include: [
+              path.resolve(__dirname, 'src/assets')
+            ],
+            use: [
+              {
+                loader: 'url-loader',
+                options: {
+                  limit: 1,
+                  // outputPath: 'model',
+                  name: '[name]_[contenthash:8].[ext]',
+                  esModule: false
+                }
+              }
+              // {
+              //     loader: 'url-loader',
+              //     options: {
+              //         limit: 1,
+              //         name: 'model/[name].[ext]'
+              //     }
+              // }
+            ]
+          }
+        ]
       }
     }
     if (process.env.NODE_ENV === 'production') {
@@ -76,17 +110,17 @@ module.exports = {
   },
   chainWebpack: (config) => {
     // CDN
-    if (process.env.NODE_ENV === 'production' && process.env.VUE_APP_CDN_DEPS !== 'false') {
-      config.externals(externals)
-      // 添加 CDN 参数到 htmlWebpackPlugin 配置中
-      const targetHtmlPluginNames = ['html']
-      targetHtmlPluginNames.forEach((name) => {
-        config.plugin(name).tap(options => {
-          options[0].cdn = process.env.NODE_ENV === 'production' ? cdn : []
-          return options
-        })
-      })
-    }
+    // if (process.env.NODE_ENV === 'production' && process.env.VUE_APP_CDN_DEPS !== 'false') {
+    //   config.externals(externals)
+    //   // 添加 CDN 参数到 htmlWebpackPlugin 配置中
+    //   const targetHtmlPluginNames = ['html']
+    //   targetHtmlPluginNames.forEach((name) => {
+    //     config.plugin(name).tap(options => {
+    //       options[0].cdn = process.env.NODE_ENV === 'production' ? cdn : []
+    //       return options
+    //     })
+    //   })
+    // }
 
     // 设置 svg-sprite-loader
     config.module

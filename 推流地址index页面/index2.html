@@ -1,0 +1,278 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>遥控树莓派</title>
+    <link href="http://cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <script src="http://cdn.staticfile.org/jquery/2.2.4/jquery.min.js"></script>
+    <!-- <script src="./EasyPlayer-element.min.js"></script> -->
+    <!-- <script src="./jswebrtc.min.js"></script> -->
+    <!-- <script src="https://web.sdk.qcloud.com/player/tcplayerlite/release/v2.4.1/TcPlayer-2.4.1.js" charset="utf-8"></script>; -->
+    <style type="text/css">
+        #up {
+            margin-left: 55px;
+            margin-bottom: 3px;
+        }
+        #down{
+            margin-top: 3px;
+            margin-left: 55px;
+        }
+        .btn{
+             background: #62559f;
+            }
+            .iframe-box {
+                width: 100%;
+                height: auto;
+            }
+            .iframe-c {
+                width: 100%;
+                max-width: 640px;
+                height: 600px;
+                object-fit: contain;
+            }
+            .push-address {
+                display: block;
+            }
+    </style>
+    <script>
+        var socket;
+        function init() {
+            var host = "wss://aicar.treedom.cn";
+            try {
+                socket = new WebSocket(host);
+                socket.onopen = function () {
+                    socket.send(JSON.stringify({"type": "adminlogin","client_name": "admin","room_id": 1,"from":"admin"}));
+                };
+                socket.onmessage = function (evt) {
+                    const event = JSON.parse(evt.data)
+                    console.log(event.type, event.content);
+                    if (event.type === 'toadmin' && event.content === 'pushError') {
+                        alert('推流失败，请检查推流地址或点击重新推流')
+                    } else if (event.type === 'toadmin' && event.content === 'pushAddress') {
+                        alert('上传成功')
+                    } else if (event.type === 'toadmin' && event.content === 'adIsNone') {
+                        alert('推流地址为空')
+                    } else if (event.type === 'toadmin' && event.content === 'startSuccesss') {
+                        alert('推流成功')
+                    } else if (event.type === 'toadmin' && event.content === 'stopSuccess') {
+                        alert('停止推流成功')
+                    }
+                };
+                socket.onclose = function (e) {
+                    console.log('websocket 断开: ' + e.code + ' ' + e.reason + ' ' + e.wasClean)
+                    console.log(e)
+                    // if (e.code === 1006)
+                    init();
+                };
+            }
+            catch (ex) {
+                
+            }
+        }
+        function send(msg) {
+            try {
+                socket.send(msg);
+            } catch (ex) {
+                console.log(ex);
+            }
+        }
+        window.onbeforeunload = function () {
+            try {
+                console.log('quit');
+                // socket.send('quit');
+                socket.close();
+                socket = null;
+            }
+            catch (ex) {
+                console.log(ex);
+            }
+        };
+     
+       
+ 
+ 
+    </script>
+    <script>
+        init();
+         $(function(){
+            // var video = document.getElementById('video-webrtc');
+            // var url = 'webrtc://tliveplay.treedom.cn/live/rtmp';
+            // var player = new JSWebrtc.Player(url, { video: video, autoplay: true, onPlay: (obj) => { console.log("start play") } });
+             let inv;
+             let status = 'stop';
+            //  $(".ctl").on('mousedown', function(){
+            //     status = this.id;
+            //     send(this.id);
+            //     console.log(this.id);
+            //  });
+            //  $(".ctl").on('touchstart', function(){
+            //     status = this.id;
+            //     send(this.id);
+            //     console.log(this.id);
+            //  });
+            //  $(".ctl").on('mouseup', function(){
+            //     send('stop');
+            //  })
+            //  $(".ctl").on('touchend', function(){
+            //     send('stop');
+            //  })
+            //  $('.camera').click(function () {
+            //     console.log(this.id)
+            //     send(this.id);
+            //  })
+             $('.startpush').click(function () {
+                console.log('开始推流')
+                send(JSON.stringify({type:'start', room_id:1,content: '' }))
+                // setTimeout(() => {
+                //     player.play();
+                //     console.log('in play');
+                // }, 4000)
+             })
+             $('.stoppush').click(function () {
+                console.log('停止推流')
+                send(JSON.stringify({type:'stop', room_id:1,content: '' }))
+                // player.stop();
+             })
+             $('#btn-pushad').click(function () {
+                let value = $('.push-address').get(0).value;
+                console.log(value)
+                // send('pushAddress:' + value);
+                send(JSON.stringify({type:'config', room_id:1,content: value }))
+             });
+            $('.relink').on('click', () => {
+                init();
+            });
+         });
+         document.onkeydown = keyDown;
+         document.onkeyup = keyUp;
+         document.onkeypress = function () {
+            return false;
+         };
+        var isKeyDown = false;
+        //在Document对象中注册keyDown事件处理函数
+        function keyDown(event){  // 方向键控制元素移动函数
+            var event = event || window.event;
+            switch(event.keyCode){  // 获取当前按下键盘键的编码
+                case 37 :  // 按下左箭头键，
+                    if (isKeyDown) return;
+                    send('left');
+                    isKeyDown = true;
+                    break;
+                case 39 :  // 按下右箭头键
+                    if (isKeyDown) return;
+                    send('right');
+                    isKeyDown = true;
+                    break;
+                case 38 :  // 按下上箭头键
+                    if (isKeyDown) return;
+                    send('up')
+                    isKeyDown = true;
+                    break;
+                case 40 :  // 按下下箭头键
+                    if (isKeyDown) return;
+                    send('down')
+                    isKeyDown = true;
+                    break;
+                case 32 :  // 按下空格
+                    if (isKeyDown) return;
+                    send('stop')
+                    isKeyDown = true;
+                    break;
+                case 87 : // 摄像头上 w
+                    send('btop')
+                    break;
+                case 83 : // 摄像头下 s
+                    send('bdown')
+                    break;
+                case 65 : // 摄像头左 a
+                    send('bleft')
+                    break;
+                case 68 : // 摄像头右 d
+                    send('bright')
+                    break;
+            }
+            event.preventDefault();
+            event.stopPropagation();
+            return false
+        }
+        function keyUp (event) {
+            switch(event.keyCode){  // 获取当前按下键盘键的编码
+                case 37 :  // 按下左箭头键，
+                    send('stop');
+                    isKeyDown = false;
+                    break;
+                case 39 :  // 按下右箭头键
+                    send('stop');
+                    isKeyDown = false;
+                    break;
+                case 38 :  // 按下上箭头键
+                    send('stop');
+                    isKeyDown = false;
+                    break;
+                case 40 :  // 按下下箭头键
+                    send('stop');
+                    isKeyDown = false;
+                    break;
+                case 32: 
+                    isKeyDown = false;
+            }
+            return false
+        };
+    </script>
+</head>
+<body>
+<div id="container" class="container">
+    <button class="relink btn btn-lg btn-primary glyphicon">重新连接</button>
+    <div>
+        <input style="width: 80%;height: 40px;" class="push-address" type="text" value="rtmp://tlivepush.treedom.cn/carlive2/car?txSecret=e67c242201638cfe3fffc00670b85281&txTime=6631BA09">
+        <button id='btn-pushad' class="btn btn-lg btn-primary glyphicon">上传推流地址</button>
+    </div>
+    <!-- <div>
+        <button id='btop' class="btn btn-lg btn-primary glyphicon camera">摄像头上</button>
+        <button id='bdown' class="btn btn-lg btn-primary glyphicon camera">摄像头下</button>
+    </div>
+    <div>
+        <button id="up" class="btn btn-lg btn-primary glyphicon glyphicon-circle-arrow-up ctl"></button>
+    </div>
+    <div>
+        <button id='left' class="btn btn-lg btn-primary glyphicon glyphicon-circle-arrow-left ctl"></button>
+        <button id='stop' class="btn btn-lg btn-primary glyphicon glyphicon-stop ctl"></button>
+        <button id='right' class="btn btn-lg btn-primary glyphicon glyphicon-circle-arrow-right ctl"></button>
+    </div>
+    <div>
+        <button id='down' class="btn btn-lg btn-primary glyphicon glyphicon-circle-arrow-down ctl"></button>
+    </div>
+     <div>
+        <button id='bleft' class="btn btn-lg btn-primary glyphicon camera">摄像头左转</button>
+        <button id='bright' class="btn btn-lg btn-primary glyphicon camera">摄像头右转</button>
+    </div> -->
+    <div>
+        <div class="startpush btn btn-lg btn-primary glyphicon">开始推流</div>
+        <div class="stoppush btn btn-lg btn-primary glyphicon">停止推流</div>
+    </div>
+    <div class="iframe-box">
+        <iframe class="iframe-c" src="https://webrtcplayer.treedom.cn/player.html" frameborder="0"></iframe>
+    </div>
+    <!-- <video id="video-webrtc" style="width:100%; height:auto;"></video> -->
+</div>
+<!-- <div style="width:600px;margin: auto;">
+    <easy-player id="player" live="true" show-custom-button="true"></easy-player>
+    <input type="text" id="value" value="webrtc://tliveplay.treedom.cn/live/rtmp">
+    <button id="btn">播放</button>
+</div>
+<script>
+    var btn = document.getElementById('btn'); 
+    // 地址栏
+    var value = document.getElementById('value');
+    //播放事件 传入地址播放
+    btn.onclick = function(){
+        $('#player').attr('video-url',value.value)
+    }
+
+</script> -->
+
+<script src="https://cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+</body>
+</html>
